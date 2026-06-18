@@ -32,11 +32,11 @@ mongoose.connect(MONGODB_URI)
 const cache = require('../config/redisClient');
 
 // Manejo de Rutas de la API
-app.use('/users', require('./routes/user.routes'));
-app.use('/posts', require('./routes/post.routes'));
-app.use('/tags', require('./routes/tag.routes'));
-app.use('/comments', require('./routes/comment.routes'));
-app.use('/post-images', require('./routes/post_image.routes'));
+app.use('/users', require('../routes/user.routes'));
+app.use('/posts', require('../routes/post.routes'));
+app.use('/tags', require('../routes/tag.routes'));
+app.use('/comments', require('../routes/comment.routes'));
+app.use('/post-images', require('../routes/post-image.routes'));
 
 // Manejo de rutas no encontradas (404)
 app.use((req, res) => {
