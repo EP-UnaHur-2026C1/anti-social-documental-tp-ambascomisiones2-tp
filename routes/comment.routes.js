@@ -7,16 +7,9 @@ const validateCommentExists = require("../middlewares/validateCommentExists");
 router.post("/", validateComment, commentController.createComment);
 
 router.delete(
-  "/:idComment",
+  "/:postId/:commentId",
   validateCommentExists,
   commentController.deleteComment,
-);
-
-router.put(
-  "/:idComment",
-  validateComment,
-  validateCommentExists,
-  commentController.editComment,
 );
 
 module.exports = router;

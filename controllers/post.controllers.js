@@ -137,34 +137,10 @@ const deletePost = async (req, res) => {
   }
 };
 
-
-const editPost = async (req, res) => {
-  try {
-    const { postId } = req.params;
-    const { description } = req.body;
-
-    const updatedPost = await Post.findByIdAndUpdate(
-      postId,
-      { $set: { description } },
-      { new: true, runValidators: true }
-    );
-
-    if (cache.isReady) {
-      await cache.del(`post:${postId}`);
-      await cache.del("posts:all");
-    }
-
-    res.status(200).json({ message: "Post editado con éxito", post: updatedPost });
-  } catch (error) {
-    res.status(400).json({ message: "Error al editar el post", error: error.message });
-  }
-};
-
 module.exports = {
   createPost,
   getAllPosts,
   getPostById,
   associateTagToPost,
   deletePost,
-  editPost
 };
