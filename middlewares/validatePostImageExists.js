@@ -9,7 +9,6 @@ const validatePostImageExists = async (req, res, next) => {
       return res.status(404).json({ error: "Post asociado no encontrado" });
     }
 
-    // Buscamos la imagen de forma nativa en el array embebido
     const foundImage = post.images.id(imageId);
     if (!foundImage) {
       return res

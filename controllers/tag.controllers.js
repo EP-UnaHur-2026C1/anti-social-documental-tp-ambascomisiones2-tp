@@ -23,4 +23,35 @@ const getAllTags = async (req, res) => {
   }
 };
 
-module.exports = { createTag, getAllTags };
+const editTag = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateTag = await Tag.findByIdAndUpdate(id, req.body, {new:true, runValidators: true });
+
+    if (!updateTag) return res.status(404).json({ message: "Etiqueta no encontrada" });
+
+    if (cache.isReady) await cache.del("tags:all");
+    res.status(200).json(updateTag);
+  } catch (error) {
+    res.status(400).json({ message: "Error al editar la etiqueta", error: error.message})
+  }
+  
+};
+
+const deleteTag = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedTag = await Tag.findByIdAndDelete(id);
+
+    if (!deletedTag) {
+      return res.status(404).json({ message: "Etiqueta no encontrada" });
+    }
+
+    if (cache.isReady) await cache.del("tags:all");
+    res.status(200).json({ message: "Etiqueta eliminada con éxito" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al eliminar la etiqueta", error: error.message });
+  }
+};
+
+module.exports = { createTag, getAllTags, editTag, deleteTag };
