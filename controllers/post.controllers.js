@@ -3,16 +3,10 @@ const Tag = require("../models/tag");
 const cache = require("../config/redisClient");
 
 const filterOldComments = (post) => {
-  const monthsLimit = parseInt(process.env.COMMENT_VISIBLE_MONTHS) || 6;
-  const cutOffDate = new Date();
-  cutOffDate.setMonth(cutOffDate.getMonth() - monthsLimit);
-
   const postObject = post.toObject ? post.toObject() : post;
 
   if (postObject.comments) {
-    postObject.comments = postObject.comments.filter(
-      (c) => new Date(c.createdAt) >= cutOffDate && c.visible === true,
-    );
+    postObject.comments = postObject.comments.filter((c) => c.visible === true);
   }
   return postObject;
 };
