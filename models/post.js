@@ -23,16 +23,20 @@ const commentSchema = new mongoose.Schema(
       ref: "User",
       require: [true, "El autor del comentario es obligario"],
     },
-    visible: {
-      type: Boolean,
-      default: true,
-      require: true,
-    },
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 );
+
+commentSchema.virtual("visible").get(function () {
+  const monthsLimit = parseInt(process.env.COMMENT_VISIBLE_MONTHS) || 6;
+  const cutOffDate = new Date();
+  cutOffDate.setMonth(cutOffDate.getMonth() - monthsLimit);
+  return this.createdAt >= cutOffDate;
+});
 
 const postSchema = new mongoose.Schema(
   {
