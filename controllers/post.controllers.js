@@ -33,11 +33,11 @@ const createPost = async (req, res) => {
 
 const getAllPosts = async (req, res) => {
   try {
-    const cacheKey = "posts=all";
+    const cacheKey = "posts:all";
 
     if (cache.isReady) {
       const cachePosts = await cache.get(cacheKey);
-      if (cachePosts) return res.status(200).json(JSON.parse(cachedPosts));
+      if (cachePosts) return res.status(200).json(JSON.parse(cachePosts));
     }
 
     let posts = await Post.find()
@@ -62,7 +62,7 @@ const getAllPosts = async (req, res) => {
 const getPostById = async (req, res) => {
   try {
     const { id } = req.params;
-    const cacheKey = "post:${id}";
+    const cacheKey = `post:${id}`;
 
     if (cache.isReady) {
       const cachedPost = await cache.get(cacheKey);
@@ -91,43 +91,56 @@ const getPostById = async (req, res) => {
 };
 
 const associateTagToPost = async (req, res) => {
-    try {
-        const {id} = req.params;
-        const { tagId } = req.body;
+  try {
+    const { id } = req.params;
+    const { tagId } = req.body;
 
-        const post = await Post.findById(id);
-        const tag = await Tag.findById(tagId);
+    const post = await Post.findById(id);
+    const tag = await Tag.findById(tagId);
 
-        if (!tag || !post) return res.status(404).json({ error: "Post o tag no encontrado"});
+    if (!tag || !post)
+      return res.status(404).json({ error: "Post o tag no encontrado" });
 
-        if (!post.tags.includes(tagId)) {
-            post.tags.push(tagId);
-            await post.save();
-        }
-
-        if (cache.isReady){
-            await cache.del('post:${id}');
-            await cache.del("posts:all");
-        }
-        return res.status(201).json({ message: "Etiqueta vinculada al post con éxito"});
-    } catch (error) {
-        return res.status(400).json({ message: "Error al vincular Etiqueta", error: error.message});
+    if (!post.tags.includes(tagId)) {
+      post.tags.push(tagId);
+      await post.save();
     }
+
+    if (cache.isReady) {
+      await cache.del(`post:${id}`);
+      await cache.del("posts:all");
+    }
+    return res
+      .status(201)
+      .json({ message: "Etiqueta vinculada al post con éxito" });
+  } catch (error) {
+    return res
+      .status(400)
+      .json({ message: "Error al vincular Etiqueta", error: error.message });
+  }
 };
 
 const deletePost = async (req, res) => {
-    try {
-        const { id } = req.params;
-        await Post.findByIdAndDelete(id);
+  try {
+    const { id } = req.params;
+    await Post.findByIdAndDelete(id);
 
-        if (cache.isReady) {
-            await cache.del('post:${id}');
-            await cache.del("posts:all");
-        }
-        return res.status(200).json({ message: "Post eliminado con éxito"});
-    } catch (error) {
-        return res.status(500).json({ message: "Error al eliminar el Post", error: error.message});
+    if (cache.isReady) {
+      await cache.del(`post:${id}`);
+      await cache.del("posts:all");
     }
+    return res.status(200).json({ message: "Post eliminado con éxito" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error al eliminar el Post", error: error.message });
+  }
 };
 
-module.exports = { createPost, getAllPosts, getPostById, associateTagToPost, deletePost};
+module.exports = {
+  createPost,
+  getAllPosts,
+  getPostById,
+  associateTagToPost,
+  deletePost,
+};

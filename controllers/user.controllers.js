@@ -15,7 +15,7 @@ const createUser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select("-__V");
+    const users = await User.find().select("-__v");
     res.status(200).json(users);
   } catch (error) {
     res
@@ -84,13 +84,13 @@ const deleteUser = async (req, res) => {
     const { nickName } = req.params;
     const foundUser = req.foundUser;
 
-    const userPosts = await Post.find({ autor: foundUser._id }).select("_id");
+    const userPosts = await Post.find({ author: foundUser._id }).select("_id");
 
-    await Post.deleteMany({ autor: foundUser._id });
+    await Post.deleteMany({ author: foundUser._id });
 
     await Post.updateMany(
       {},
-      { $pull: { comments: { autor: foundUser._id } } },
+      { $pull: { comments: { author: foundUser._id } } },
     );
 
     await User.findByIdAndDelete(foundUser._id);
@@ -99,7 +99,7 @@ const deleteUser = async (req, res) => {
       await cache.del(`user:${nickName}`);
       await cache.del("posts:all");
       for (const post of userPosts) {
-        await cache.del(`post:${{post:_id}}`);
+        await cache.del(`post:${post._id}`);
       }
     }
     res
@@ -140,12 +140,9 @@ const followUser = async (req, res) => {
       await cache.del(`user:${targetNick}`);
     }
 
-    return res
-      .status(200)
-      .json({
-        message:
-          `Felicitaciones!!! @${followerNick} ahora seguis a @${targetNick}`,
-      });
+    return res.status(200).json({
+      message: `Felicitaciones!!! @${followerNick} ahora seguis a @${targetNick}`,
+    });
   } catch (error) {
     return res
       .status(500)

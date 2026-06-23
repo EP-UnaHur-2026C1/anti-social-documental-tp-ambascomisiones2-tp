@@ -2,15 +2,17 @@ const Post = require("../models/post");
 
 const validateCommentExists = async (req, res, next) => {
   try {
-    const { postId, commentId } = req.params;
+    const {idComment} = req.params
+    const { postId} = req.body;
 
     const post = await Post.findById(postId);
     if (!post) {
       return res.status(404).json({ message: "Post asociado no encontrado" });
     }
 
-    const foundComment = post.comments.id(commentId);
+    const foundComment = post.comments.id(idComment);
     if (!foundComment) {
+      console.log(commentId)
       return res
         .status(404)
         .json({ message: "Comentario no encontrado en este post" });
