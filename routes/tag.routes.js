@@ -1,4 +1,4 @@
-const {Router} = require("express");
+const { Router } = require("express");
 const router = Router();
 const tagController = require("../controllers/tag.controllers");
 const validateTag = require("../middlewares/validateTag");

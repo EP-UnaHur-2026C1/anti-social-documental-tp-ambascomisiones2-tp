@@ -30,16 +30,16 @@ paths:
       summary: Obtener todos los usuarios
       description: Retorna la lista completa de usuarios registrados en el sistema.
       responses:
-        '200':
+        "200":
           description: Lista de usuarios obtenida con éxito.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
-        '500':
-          $ref: '#/components/responses/ServerError'
+                  $ref: "#/components/schemas/User"
+        "500":
+          $ref: "#/components/responses/ServerError"
 
     post:
       tags:
@@ -51,16 +51,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserForm'
+              $ref: "#/components/schemas/UserForm"
       responses:
-        '201':
+        "201":
           description: Usuario creado exitosamente.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
 
   /users/{nickName}:
     get:
@@ -76,16 +76,16 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Perfil de usuario encontrado.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserProfile'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/ServerError'
+                $ref: "#/components/schemas/UserProfile"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
 
     put:
       tags:
@@ -103,18 +103,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserForm'
+              $ref: "#/components/schemas/UserForm"
       responses:
-        '200':
+        "200":
           description: Usuario actualizado con éxito.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
     delete:
       tags:
@@ -128,10 +128,10 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Usuario y dependencias eliminados correctamente.
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "404":
+          $ref: "#/components/responses/NotFound"
 
   /users/follow:
     post:
@@ -156,11 +156,11 @@ paths:
                   type: string
                   example: "juan_unahur"
       responses:
-        '200':
+        "200":
           description: Operación de seguimiento exitosa.
-        '400':
+        "400":
           description: Intento de auto-seguimiento o datos inválidos.
-        '404':
+        "404":
           description: Uno o ambos usuarios no existen.
 
   # --- ENDPOINTS: POSTS ---
@@ -171,7 +171,7 @@ paths:
       summary: Obtener todas las publicaciones
       description: Lista los posts resolviendo los datos básicos del creador y sus etiquetas asociadas.
       responses:
-        '200':
+        "200":
           description: Listado exitoso.
     post:
       tags:
@@ -202,10 +202,10 @@ paths:
                   type: string
                   example: "marquitos99"
       responses:
-        '201':
+        "201":
           description: Post publicado.
-        '400':
-          $ref: '#/components/responses/BadRequest'
+        "400":
+          $ref: "#/components/responses/BadRequest"
 
   /posts/{id}:
     get:
@@ -220,12 +220,12 @@ paths:
           description: ID único del post (MongoDB ObjectId de 24 caracteres).
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{24}$'
+            pattern: "^[0-9a-fA-F]{24}$"
       responses:
-        '200':
+        "200":
           description: Post recuperado (Filtros de comentarios e imágenes aplicados).
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "404":
+          $ref: "#/components/responses/NotFound"
 
     delete:
       tags:
@@ -239,10 +239,10 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Post eliminado con éxito.
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "404":
+          $ref: "#/components/responses/NotFound"
 
   /posts/{id}/tags:
     post:
@@ -267,12 +267,12 @@ paths:
               properties:
                 tagId:
                   type: string
-                  pattern: '^[0-9a-fA-F]{24}$'
+                  pattern: "^[0-9a-fA-F]{24}$"
                   example: "648f1a2b3c4d5e6f7a8b9c0d"
       responses:
-        '200':
+        "200":
           description: Etiqueta vinculada correctamente e invalidación de caché ejecutada.
-        '404':
+        "404":
           description: El Post o la Etiqueta no se encontraron.
 
   # --- ENDPOINTS: COMMENTS ---
@@ -287,12 +287,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CommentForm'
+              $ref: "#/components/schemas/CommentForm"
       responses:
-        '201':
+        "201":
           description: Comentario creado con éxito.
-        '400':
-          $ref: '#/components/responses/BadRequest'
+        "400":
+          $ref: "#/components/responses/BadRequest"
 
   /comments/{id}:
     delete:
@@ -307,10 +307,10 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Comentario eliminado con éxito.
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "404":
+          $ref: "#/components/responses/NotFound"
 
   # --- ENDPOINTS: POST IMAGES ---
   /post-images:
@@ -335,12 +335,12 @@ paths:
                   description: Archivo de imagen (jpeg, png, webp). Máx 5MB.
                 postId:
                   type: string
-                  pattern: '^[0-9a-fA-F]{24}$'
+                  pattern: "^[0-9a-fA-F]{24}$"
                   example: "648f1a2b3c4d5e6f7a8b9c01"
       responses:
-        '201':
+        "201":
           description: Imagen guardada de forma estática en el servidor y mapeada en la base de datos.
-        '400':
+        "400":
           description: No se adjuntó ningún archivo o el formato no es el admitido.
 
   /post-images/{id}:
@@ -355,10 +355,10 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Imagen desvinculada del sistema.
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "404":
+          $ref: "#/components/responses/NotFound"
 
   # --- ENDPOINTS: TAGS ---
   /tags:
@@ -367,7 +367,7 @@ paths:
         - Tags
       summary: Obtener todas las etiquetas registradas
       responses:
-        '200':
+        "200":
           description: Colección de tags devuelta con éxito.
     post:
       tags:
@@ -388,10 +388,10 @@ paths:
                   maxLength: 30
                   example: "Tecnologia"
       responses:
-        '201':
+        "201":
           description: Tag guardado.
-        '400':
-          $ref: '#/components/responses/BadRequest'
+        "400":
+          $ref: "#/components/responses/BadRequest"
 
 components:
   schemas:
@@ -424,7 +424,7 @@ components:
 
     UserProfile:
       allOf:
-        - $ref: '#/components/schemas/User'
+        - $ref: "#/components/schemas/User"
         - type: object
           properties:
             following:
@@ -499,7 +499,7 @@ components:
           example: "marquitos99"
         postId:
           type: string
-          pattern: '^[0-9a-fA-F]{24}$'
+          pattern: "^[0-9a-fA-F]{24}$"
           example: "648f1a2b3c4d5e6f7a8b9c01"
 
   responses:

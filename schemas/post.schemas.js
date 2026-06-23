@@ -1,17 +1,16 @@
 const Joi = require("joi");
 
 const postSchema = Joi.object({
-  description: Joi.string().min(3).max(100).required().messages({
+  description: Joi.string().min(3).max(500).required().messages({
     "string.base": "La descripción debe ser texto",
     "string.empty": "La descripción no puede estar vacía",
+    "string.min": "La descripción debe tener al menos 3 caracteres",
+    "string.max": "La descripción no puede superar los 500 caracteres",
   }),
-  createDate: Joi.date().less("now").required().messages({
-    "date.less": "La fecha de creación debe ser una fecha pasada",
-  }),
-  nickName: Joi.string().min(3).max(30).required().messages({
-      "string.base": "El nombre de usuario debe ser texto",
-      "string.empty": "El nombre de usuario no puede estar vacío",
-  }),
+  author: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required().messages({
+    "string.empty": "El ID del autor es requerido",
+    "string.pattern.base": "El ID del autor debe ser un ObjectId válido de MongoDB (24 caracteres hexadecimales)",
+  })
 });
 
-module.exports = {postSchema};
+module.exports = { postSchema };

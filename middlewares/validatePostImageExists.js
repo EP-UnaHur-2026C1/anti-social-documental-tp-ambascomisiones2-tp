@@ -1,19 +1,30 @@
-const { post_image } = require("../models");
+const Post = require("../models/post");
 
 const validatePostImageExists = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const foundImage = await post_image.findById(id);
+  try {
+    const { postId, imageId } = req.params;
 
-        if (!foundImage) {
-            return res.status(404).json({ error: "Imagen no encontrada" });
-        }
-
-        req.foundImage = foundImage;
-        next();
-    } catch (error) {
-        return res.status(500).json({ message: "Error al validar la imagen", error: error.message });
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: "Post asociado no encontrado" });
     }
+
+    // Buscamos la imagen de forma nativa en el array embebido
+    const foundImage = post.images.id(imageId);
+    if (!foundImage) {
+      return res
+        .status(404)
+        .json({ error: "Imagen no encontrada en este post" });
+    }
+
+    req.foundPost = post;
+    req.foundImage = foundImage;
+    next();
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error al validar la imagen", error: error.message });
+  }
 };
 
 module.exports = validatePostImageExists;

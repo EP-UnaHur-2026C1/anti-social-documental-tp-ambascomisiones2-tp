@@ -1,63 +1,71 @@
-const moogoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const userSchema = new moogoose.Schema({
+const calcularEdad = (fechaNacimiento) => {
+  const cumpleaños = new Date(fechaNacimiento);
+  const hoy = new Date();
+  let edad = hoy.getFullYear() - cumpleaños.getFullYear();
+  const mes = hoy.getMonth() - cumpleaños.getMonth();
+
+  if (mes < 0 || (mes === 0 && hoy.getDate() < cumpleaños.getDate())) {
+    edad--;
+  }
+  return edad;
+};
+
+const userSchema = new mongoose.Schema(
+  {
     nickName: {
-        type: String,
-        required: [ true, 'NickName es obligatorio' ],
-        unique: true,
-        trim: true,     
+      type: String,
+      required: [true, "NickName es obligatorio"],
+      unique: true,
+      trim: true,
     },
     firstName: {
-        type: String,
-        required: [ true, 'Nombre es obligatorio' ],
-        trim: true,
+      type: String,
+      required: [true, "Nombre es obligatorio"],
+      trim: true,
     },
     lastName: {
-        type: String,
-        required: [ true, 'Apellido es obligatorio' ],
-        trim: true,
+      type: String,
+      required: [true, "Apellido es obligatorio"],
+      trim: true,
     },
-    birthDate: {
-        type: Date,
-        required: [ true, 'Fecha de nacimiento es obligatoria' ],
+    birthdate: {
+      type: Date,
+      required: [true, "Fecha de nacimiento es obligatoria"],
+    },
+    age: {
+      type: Number,
     },
     email: {
-        type: String,
-        required: [ true, 'Email es obligatorio' ],
-        unique: true,
-        trim: true,
+      type: String,
+      required: [true, "Email es obligatorio"],
+      unique: true,
+      trim: true,
     },
-    follwers: [
-        {
-            type: moogoose.Schema.Types.ObjectId,
-            ref: 'User',
-        }
+    followers: [ 
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
     ],
     following: [
-        {
-            type: moogoose.Schema.Types.ObjectId,
-            ref: 'User',
-        }
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
     ],
-}, {
+  },
+  {
     timestamps: true,
+  }
+);
+
+userSchema.pre("validate", function () {
+  if (this.birthdate) {
+    this.age = calcularEdad(this.birthdate);
+  }
 });
 
-userSchema.virtual("age").get(function() {
-    if (!this.birthDate) return null;
-    const hoy = new Date();
-    let edad = hoy.getFullYear() - this.birthDate.getFullYear();
-    const mes = hoy.getMonth() - this.birthDate.getMonth();
-
-    if (mes < 0 || (mes === 0 && hoy.getDate() < this.birthDate.getDate())) {
-        edad--;
-    }
-    return edad;
-});
-
-userSchema.set('toJSON', { virtuals: true });
-userSchema.set('toObject', { virtuals: true });
-
-const User = moogoose.model('User', userSchema);
-
+const User = mongoose.model("User", userSchema);
 module.exports = User;

@@ -1,0 +1,133 @@
+const Post = require("../models/post");
+const Tag = require("../models/tag");
+const cache = require("../config/redisClient");
+
+const filterOldComments = (post) => {
+  const monthsLimit = parseInt(process.env.COMMENT_VISIBLE_MONTHS) || 6;
+  const cutOffDate = new Date();
+  cutOffDate.setMonth(cutOffDate.getMonth() - monthsLimit);
+
+  const postObject = post.toObject ? post.toObject() : post;
+
+  if (postObject.comments) {
+    postObject.comments = postObject.comments.filter(
+      (c) => new Date(c.createdAt) >= cutOffDate && c.visible === true,
+    );
+  }
+  return postObject;
+};
+
+const createPost = async (req, res) => {
+  try {
+    const newPost = await Post.create(req.body);
+
+    if (cache.isReady) await cache.del("posts:all");
+
+    res.status(201).json(newPost);
+  } catch (error) {
+    res
+      .status(400)
+      .json({ message: "Error al crear el Post", error: error.message });
+  }
+};
+
+const getAllPosts = async (req, res) => {
+  try {
+    const cacheKey = "posts=all";
+
+    if (cache.isReady) {
+      const cachePosts = await cache.get(cacheKey);
+      if (cachePosts) return res.status(200).json(JSON.parse(cachedPosts));
+    }
+
+    let posts = await Post.find()
+      .populate("author", "nickName firstName lastName")
+      .populate("tags", "name")
+      .populate("comments.author", "nickName")
+      .sort({ createdAt: -1 });
+
+    posts = posts.map(filterOldComments);
+
+    if (cache.isReady && posts.length > 0) {
+      await cache.set(cacheKey, JSON.stringify(posts), { EX: 300 });
+    }
+    res.status(200).json(posts);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error al obtener los Posts", error: error.message });
+  }
+};
+
+const getPostById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const cacheKey = "post:${id}";
+
+    if (cache.isReady) {
+      const cachedPost = await cache.get(cacheKey);
+      if (cachedPost) return res.status(200).json(JSON.parse(cachedPost));
+    }
+
+    const foundPost = await Post.findById(id)
+      .populate("author", "nickName firstName lastName")
+      .populate("tags", "name")
+      .populate("comments.author", "nickName");
+
+    if (!foundPost)
+      return res.status(404).json({ message: "Post no encontrado" });
+
+    const postFiltered = filterOldComments(foundPost);
+
+    if (cache.isReady) {
+      await cache.set(cacheKey, JSON.stringify(postFiltered), { EX: 300 });
+    }
+    res.status(200).json(postFiltered);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error al obtener el post", error: error.message });
+  }
+};
+
+const associateTagToPost = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const { tagId } = req.body;
+
+        const post = await Post.findById(id);
+        const tag = await Tag.findById(tagId);
+
+        if (!tag || !post) return res.status(404).json({ error: "Post o tag no encontrado"});
+
+        if (!post.tags.includes(tagId)) {
+            post.tags.push(tagId);
+            await post.save();
+        }
+
+        if (cache.isReady){
+            await cache.del('post:${id}');
+            await cache.del("posts:all");
+        }
+        return res.status(201).json({ message: "Etiqueta vinculada al post con éxito"});
+    } catch (error) {
+        return res.status(400).json({ message: "Error al vincular Etiqueta", error: error.message});
+    }
+};
+
+const deletePost = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Post.findByIdAndDelete(id);
+
+        if (cache.isReady) {
+            await cache.del('post:${id}');
+            await cache.del("posts:all");
+        }
+        return res.status(200).json({ message: "Post eliminado con éxito"});
+    } catch (error) {
+        return res.status(500).json({ message: "Error al eliminar el Post", error: error.message});
+    }
+};
+
+module.exports = { createPost, getAllPosts, getPostById, associateTagToPost, deletePost};

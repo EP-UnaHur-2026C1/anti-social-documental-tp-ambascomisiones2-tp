@@ -1,13 +1,20 @@
 const { Router } = require("express");
 const router = Router();
-
-const uploadPostImage = require("../middlewares/uploadPostImage");
-const validatePostImage = require("../middlewares/validatePostImage");
+const uploadPostImage = require("../middlewares/upload");
 const validatePostImageExists = require("../middlewares/validatePostImageExists");
 const postImageController = require("../controllers/post_image.controllers");
 
+// Para crear la imagen pasamos el postId en el body del Form-Data
+router.post(
+  "/",
+  uploadPostImage.single("image"),
+  postImageController.createImage,
+);
 
-router.post("/", uploadPostImage.single('image'), validatePostImage, postImageController.createImage);
-router.delete("/:id", validatePostImageExists, postImageController.deleteImage);
+router.delete(
+  "/:postId/:imageId",
+  validatePostImageExists,
+  postImageController.deleteImage,
+);
 
 module.exports = router;

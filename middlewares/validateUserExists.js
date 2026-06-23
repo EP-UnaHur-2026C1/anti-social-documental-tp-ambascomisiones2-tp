@@ -1,9 +1,9 @@
-const { user } = require("../models");
+const  User  = require("../models/user");
 
 const validateUserExists = async (req, res, next) => {
   try {
-    const { nickName } = req.params;
-    const foundUser = await user.findOne({ nickName });
+    const { nickName } = req.params
+    const foundUser = await User.findOne({ nickName });
 
     if (!foundUser) {
       return res.status(404).json({ error: "Usuario no encontrado" });
@@ -11,7 +11,9 @@ const validateUserExists = async (req, res, next) => {
     req.foundUser = foundUser;
     next();
   } catch (error) {
-    return res.status(500).json({ message: "Error al validar el usuario", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Error al validar el usuario", error: error.message });
   }
 };
 

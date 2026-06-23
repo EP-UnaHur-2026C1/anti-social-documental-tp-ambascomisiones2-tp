@@ -1,11 +1,15 @@
 const Joi = require("joi");
 
 const postImageSchema = Joi.object({
-  postId: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required().messages({
-    "string.base": "El ID del post debe ser una cadena de texto",
-    "string.empty": "El ID del post es requerido",
-    "string.pattern.base": "El ID del post debe ser un ObjectId válido de MongoDB (24 caracteres hexadecimales)",
-  }),
+  postId: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .required()
+    .messages({
+      "string.empty": "El ID del post es requerido",
+      "string.pattern.base":
+        "El ID del post debe ser un ObjectId válido de MongoDB",
+    }),
+  image: Joi.any(), // Permite el archivo binario que viene de Multer
 });
 
 module.exports = { postImageSchema };

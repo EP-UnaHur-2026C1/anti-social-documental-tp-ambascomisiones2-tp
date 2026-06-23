@@ -1,60 +1,63 @@
-const { string } = require('joi');
-const mongoose = require('mongoose');
+const { string } = require("joi");
+const mongoose = require("mongoose");
 
 const postImageSchema = new mongoose.Schema(
-    {
-        imageUrl: {
-            type:String,
-            require : [true, "La URL de la imagen es obligatoria"]
-        }
-    }, {timestamps: true }
+  {
+    imageUrl: {
+      type: String,
+      required: [true, "La URL de la imagen es obligatoria"],
+    },
+  },
+  { timestamps: true },
 );
 
 const commentSchema = new mongoose.Schema(
-    {
-        text: {
-            type: String,
-            require: [ true, " El texto del comentario es obligario"],
-            trim: true
-        },
-        author: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-            require: [ true, "El autor del comentario es obligario" ]
-        },
-        visible: {
-            type: Boolean,
-            default: true,
-            require: true
-        }
+  {
+    text: {
+      type: String,
+      require: [true, " El texto del comentario es obligario"],
+      trim: true,
     },
-    {
-        timestamps: true
-    }
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      require: [true, "El autor del comentario es obligario"],
+    },
+    visible: {
+      type: Boolean,
+      default: true,
+      require: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
 );
 
 const postSchema = new mongoose.Schema(
-    {
-    description:{
-        type: string,
-        require: [ true, "La descripcion es obligaria"],
-        trim: true
+  {
+    description: {
+      type: String,
+      require: [true, "La descripcion es obligaria"],
+      trim: true,
     },
     author: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        require: [true, "El autor es obligatorio"],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      require: [true, "El autor es obligatorio"],
     },
-    tags: [{
+    tags: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Tag"
-    }],
-    images: [post_image],
-    comments: [comment],
-    },
-    {
-        timestamps: true,
-    }
+        ref: "Tag",
+      },
+    ],
+    images: [postImageSchema],
+    comments: [commentSchema],
+  },
+  {
+    timestamps: true,
+  },
 );
 
 const Post = mongoose.model("Post", postSchema);
