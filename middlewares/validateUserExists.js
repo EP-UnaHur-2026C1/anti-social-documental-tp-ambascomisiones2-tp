@@ -1,9 +1,8 @@
-const User = require("../models/user");
+const  User  = require("../models/user");
 
 const validateUserExists = async (req, res, next) => {
   try {
-    const { nickName } = req.params;
-
+    const { nickName } = req.params
     const foundUser = await User.findOne({ nickName });
 
     if (!foundUser) {

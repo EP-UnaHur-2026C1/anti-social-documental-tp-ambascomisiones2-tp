@@ -9,7 +9,7 @@ router.get("/", userController.getAllUsers);
 router.get(
   "/:nickName",
   validarUserNickName,
-  validateUserExists,
+  validateUserExists,     //Creo que es redundante, porque si lo encuentra lo setea en la req y despues lo vuelve a buscar en el controlador
   userController.getUserByNickName,
 );
 router.post("/", validarUser, userController.createUser);

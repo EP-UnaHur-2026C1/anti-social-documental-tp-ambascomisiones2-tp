@@ -25,12 +25,13 @@ const createComment = async (req, res) => {
 
 const deleteComment = async (req, res) => {
   try {
-    const { postId, commentId } = req.params;
+    const {idComment} = req.params
+    const { postId } = req.body;
 
     const post = await Post.findById(postId);
     if (!post) return res.status(404).json({ message: "Post no encontrado" });
 
-    post.comments.pull({ _id: commentId });
+    post.comments.pull({ _id: idComment });
     await post.save();
     
     if (cache.isReady) {
@@ -46,4 +47,28 @@ const deleteComment = async (req, res) => {
   }
 };
 
-module.exports = { createComment, deleteComment };
+
+const editComment = async (req,res) =>{
+  try {
+    const { idComment } = req.params;
+    const {postId, text } = req.body;
+
+    const updatedPost = await Post.findOneAndUpdate(
+      { _id: postId, "comments._id": idComment },
+      { $set: { "comments.$.text": text } },
+      { new: true }
+    );
+
+    if (cache.isReady) {
+      await cache.del(`post:${postId}`);
+      await cache.del("posts:all");
+    }
+
+    res.status(200).json({ message: "Comentario editado con éxito", post: updatedPost });
+  } catch (error) {
+    console.log(error)
+    res.status(400).json({ message: "Error al editar el comentario", error: error.message });
+  }
+}
+
+module.exports = { createComment, deleteComment, editComment };
