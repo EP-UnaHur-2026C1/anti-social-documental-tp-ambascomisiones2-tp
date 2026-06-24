@@ -17,5 +17,6 @@ router.post("/", validatePost, validateAuthorExists, postController.createPost);
 router.post("/:id/tags", validatePostExists, postController.associateTagToPost);
 router.delete("/:id", validatePostExists, postController.deletePost);
 router.put("/:postId",validatePost,validatePostExists, postController.editPost) //Capaz se puede agregar que valide que el mismo author que creo el comentario seae el que quiere editarlo
+router.put("/image/:id",validatePost,validatePostExists,postController.associateImageToPost)
  
 module.exports = router;
