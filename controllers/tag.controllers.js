@@ -1,4 +1,5 @@
 const Tag = require("../models/tag");
+const cache = require("../config/redisClient");
 
 const createTag = async (req, res) => {
   try {
