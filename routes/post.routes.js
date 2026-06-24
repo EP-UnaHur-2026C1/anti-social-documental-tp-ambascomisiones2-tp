@@ -21,6 +21,6 @@ router.put(
   validatePost,
   validatePostExists,
   postController.editPost,
-); //Capaz se puede agregar que valide que el mismo author que creo el comentario seae el que quiere editarlo
+); 
 
 module.exports = router;
