@@ -9,7 +9,7 @@ const postImageSchema = Joi.object({
       "string.pattern.base":
         "El ID del post debe ser un ObjectId válido de MongoDB",
     }),
-  image: Joi.any(), // Permite el archivo binario que viene de Multer
+  image: Joi.any(), 
 });
 
 module.exports = { postImageSchema };
