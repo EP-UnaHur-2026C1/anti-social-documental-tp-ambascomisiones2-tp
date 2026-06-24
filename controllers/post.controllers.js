@@ -156,26 +156,6 @@ const editPost = async (req, res) => {
 
 
 
-const associateImageToPost = async (req,res) =>{
-  try {
-    const { id } = req.params;
-    const { imageUrl } = req.body;
-
-    if (!imageUrl) {
-      return res.status(400).json({ message: "La URL de la imagen es obligatoria" });
-    }
-
-    const updatedPost = await Post.findByIdAndUpdate(
-      id,
-      { $push: { images: { imageUrl } } },
-      { new: true, runValidators: true }
-    );
-
-    res.status(200).json({ message: "Imagen agregada con éxito", post: updatedPost });
-  } catch (error) {
-    res.status(500).json({ message: "Error al agregar la imagen", error: error.message });
-  }
-}
 
 module.exports = {
   createPost,
@@ -183,6 +163,5 @@ module.exports = {
   getPostById,
   associateTagToPost,
   deletePost,
-  editPost,
-  associateImageToPost
+  editPost
 };
