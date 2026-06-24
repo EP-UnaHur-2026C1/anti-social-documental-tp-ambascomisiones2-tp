@@ -7,10 +7,14 @@ const postSchema = Joi.object({
     "string.min": "La descripción debe tener al menos 3 caracteres",
     "string.max": "La descripción no puede superar los 500 caracteres",
   }),
-  author: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required().messages({
-    "string.empty": "El ID del autor es requerido",
-    "string.pattern.base": "El ID del autor debe ser un ObjectId válido de MongoDB (24 caracteres hexadecimales)",
-  })
+  author: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .required()
+    .messages({
+      "string.empty": "El ID del autor es requerido",
+      "string.pattern.base":
+        "El ID del autor debe ser un ObjectId válido de MongoDB (24 caracteres hexadecimales)",
+    }),
 });
 
 module.exports = { postSchema };

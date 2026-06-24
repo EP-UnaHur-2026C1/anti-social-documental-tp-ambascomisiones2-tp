@@ -9,7 +9,7 @@ router.get("/", userController.getAllUsers);
 router.get(
   "/:nickName",
   validarUserNickName,
-  validateUserExists,  
+  validateUserExists,
   userController.getUserByNickName,
 );
 router.post("/", validarUser, userController.createUser);

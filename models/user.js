@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
-    followers: [ 
+    followers: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -58,7 +58,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 userSchema.pre("validate", function () {

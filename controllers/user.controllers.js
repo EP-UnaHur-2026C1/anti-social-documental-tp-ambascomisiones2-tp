@@ -70,12 +70,10 @@ const updateUser = async (req, res) => {
     }
     res.status(200).json(updatedUser);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error al actualizar el usuario",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error al actualizar el usuario",
+      error: error.message,
+    });
   }
 };
 
@@ -144,12 +142,10 @@ const followUser = async (req, res) => {
       message: `Felicitaciones!!! @${followerNick} ahora seguis a @${targetNick}`,
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({
-        message: "Error al procesar el seguimiento",
-        error: error.message,
-      });
+    return res.status(500).json({
+      message: "Error al procesar el seguimiento",
+      error: error.message,
+    });
   }
 };
 

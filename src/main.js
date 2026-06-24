@@ -20,7 +20,8 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
 // Conexión a MongoDB con Mongoose
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/anti-social-documental";
+const MONGODB_URI =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/anti-social-documental";
 mongoose
   .connect(MONGODB_URI)
   .then(() => {
@@ -47,7 +48,9 @@ app.use((req, res) => {
 
 app.listen(PORT, async () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
-  console.log(`Documentación de la API disponible en http://localhost:${PORT}/api-docs`);
+  console.log(
+    `Documentación de la API disponible en http://localhost:${PORT}/api-docs`,
+  );
 
   // Conexión explícita de Redis v4
   try {

@@ -3,10 +3,10 @@ const Tag = require("../models/tag");
 const cache = require("../config/redisClient");
 
 const filterOldComments = (post) => {
-  const postObject = post.toObject ? post.toObject() : post;
+  const postObject = post.toObject ? post.toObject({ virtuals: true }) : post;
 
   if (postObject.comments) {
-    postObject.comments = postObject.comments.filter((c) => c.visible === true);
+    postObject.comments = postObject.comments.filter((c) => c.visible);
   }
   return postObject;
 };
@@ -131,7 +131,6 @@ const deletePost = async (req, res) => {
   }
 };
 
-
 const editPost = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -140,7 +139,7 @@ const editPost = async (req, res) => {
     const updatedPost = await Post.findByIdAndUpdate(
       postId,
       { $set: { description } },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (cache.isReady) {
@@ -148,14 +147,15 @@ const editPost = async (req, res) => {
       await cache.del("posts:all");
     }
 
-    res.status(200).json({ message: "Post editado con éxito", post: updatedPost });
+    res
+      .status(200)
+      .json({ message: "Post editado con éxito", post: updatedPost });
   } catch (error) {
-    res.status(400).json({ message: "Error al editar el post", error: error.message });
+    res
+      .status(400)
+      .json({ message: "Error al editar el post", error: error.message });
   }
 };
-
-
-
 
 module.exports = {
   createPost,
@@ -163,5 +163,5 @@ module.exports = {
   getPostById,
   associateTagToPost,
   deletePost,
-  editPost
+  editPost,
 };

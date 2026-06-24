@@ -2,7 +2,7 @@ const Post = require("../models/post");
 const fs = require("fs");
 const path = require("path");
 const cache = require("../config/redisClient");
- 
+
 const createImage = async (req, res) => {
   try {
     if (!req.file)
@@ -24,7 +24,7 @@ const createImage = async (req, res) => {
       .json({ message: " Error al subir la imagen.", error: error.message });
   }
 };
- 
+
 const getImagesByPost = async (req, res) => {
   try {
     const { postId } = req.params;
@@ -34,10 +34,13 @@ const getImagesByPost = async (req, res) => {
   } catch (error) {
     res
       .status(500)
-      .json({ message: "Error al obtener las imágenes del post", error: error.message });
+      .json({
+        message: "Error al obtener las imágenes del post",
+        error: error.message,
+      });
   }
 };
- 
+
 const deleteImage = async (req, res) => {
   try {
     const { postId, imageId } = req.params;
@@ -64,5 +67,5 @@ const deleteImage = async (req, res) => {
       .json({ message: "Error al eliminar la imagen.", error: error.message });
   }
 };
- 
+
 module.exports = { createImage, getImagesByPost, deleteImage };
