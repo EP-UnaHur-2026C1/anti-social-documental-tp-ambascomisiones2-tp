@@ -71,4 +71,21 @@ const editComment = async (req,res) =>{
   }
 }
 
-module.exports = { createComment, deleteComment, editComment };
+const getCommentById = async (req, res) => {
+  try {
+    const { idComment } = req.params;
+    const { postId } = req.query;
+ 
+    const post = await Post.findById(postId).populate("comments.author", "nickName");
+    if (!post) return res.status(404).json({ message: "Post no encontrado" });
+ 
+    const comment = post.comments.id(idComment);
+    if (!comment) return res.status(404).json({ message: "Comentario no encontrado" });
+ 
+    res.status(200).json(comment);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener el comentario", error: error.message });
+  }
+};
+
+module.exports = { createComment, deleteComment, editComment, getCommentById  };

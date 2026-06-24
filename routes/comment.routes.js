@@ -5,6 +5,7 @@ const validateComment = require("../middlewares/validateComment");
 const validateCommentExists = require("../middlewares/validateCommentExists");
 const validateAuthorExists = require("../middlewares/validateAuthorExists");
  
+router.get("/:idComment", commentController.getCommentById);
 router.post("/", validateComment, validateAuthorExists, commentController.createComment);
  
 router.delete(
