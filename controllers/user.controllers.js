@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const Post = require("../models/post");
 const cache = require("../config/redisClient");
+const { invalidateCache } = require("../services/cache.service");
 
 const createUser = async (req, res) => {
   try {
@@ -60,20 +61,19 @@ const updateUser = async (req, res) => {
   try {
     const { nickName } = req.params;
     const updatedUser = await User.findOneAndUpdate({ nickName }, req.body, {
-      new: true,
+      returnDocument: 'after',
       runValidators: true,
     });
 
-    if (cache.isReady) {
-      await cache.del(`user:${nickName}`);
-      await cache.del("posts:all");
-    }
+    await invalidateCache([`user:${nickName}`, "posts:all"]);
     res.status(200).json(updatedUser);
   } catch (error) {
-    res.status(500).json({
-      message: "Error al actualizar el usuario",
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({
+        message: "Error al actualizar el usuario",
+        error: error.message,
+      });
   }
 };
 
@@ -83,23 +83,20 @@ const deleteUser = async (req, res) => {
     const foundUser = req.foundUser;
 
     const userPosts = await Post.find({ author: foundUser._id }).select("_id");
-
     await Post.deleteMany({ author: foundUser._id });
-
     await Post.updateMany(
       {},
       { $pull: { comments: { author: foundUser._id } } },
     );
-
     await User.findByIdAndDelete(foundUser._id);
 
-    if (cache.isReady) {
-      await cache.del(`user:${nickName}`);
-      await cache.del("posts:all");
-      for (const post of userPosts) {
-        await cache.del(`post:${post._id}`);
-      }
-    }
+    const cacheKeys = [
+      `user:${nickName}`,
+      "posts:all",
+      ...userPosts.map((post) => `post:${post._id}`),
+    ];
+    await invalidateCache(cacheKeys);
+
     res
       .status(200)
       .json({ message: "Usuario y todo su contenido asociado eliminado" });
@@ -133,19 +130,18 @@ const followUser = async (req, res) => {
       $addToSet: { followers: follower._id },
     });
 
-    if (cache.isReady) {
-      await cache.del(`user:${followerNick}`);
-      await cache.del(`user:${targetNick}`);
-    }
+    await invalidateCache([`user:${followerNick}`, `user:${targetNick}`]);
 
     return res.status(200).json({
       message: `Felicitaciones!!! @${followerNick} ahora seguis a @${targetNick}`,
     });
   } catch (error) {
-    return res.status(500).json({
-      message: "Error al procesar el seguimiento",
-      error: error.message,
-    });
+    return res
+      .status(500)
+      .json({
+        message: "Error al procesar el seguimiento",
+        error: error.message,
+      });
   }
 };
 

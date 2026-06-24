@@ -1,11 +1,11 @@
 const Post = require("../models/post");
 const User = require("../models/user");
-const cache = require("../config/redisClient");
+const { invalidateCache } = require("../services/cache.service");
 
 const filterOldComments = (post) => {
   const postObject = post.toObject ? post.toObject({ virtuals: true }) : post;
   if (postObject.comments) {
-    postObject.comments = postObject.comments.filter((c) => c.esVisible);
+    postObject.comments = postObject.comments.filter((c) => c.visible);
   }
   return postObject;
 };
@@ -18,15 +18,18 @@ const createComment = async (req, res) => {
       return res
         .status(404)
         .json({ message: "El usuario que intenta comentar no existe." });
+
     const post = await Post.findById(postId);
     if (!post) return res.status(404).json({ message: "Post no encontrado" });
+
     post.comments.push({ text, author });
     await post.save();
-    if (cache.isReady) {
-      await cache.del(`post:${postId}`);
-      await cache.del("posts:all");
-      await cache.del(`posts:user:${post.author}`);
-    }
+
+    await invalidateCache([
+      `post:${postId}`,
+      "posts:all",
+      `posts:user:${post.author}`,
+    ]);
     res.status(201).json({ message: "Comentario agregado con éxito" });
   } catch (error) {
     res
@@ -43,6 +46,7 @@ const getCommentsByPost = async (req, res) => {
       "nickName",
     );
     if (!post) return res.status(404).json({ message: "Post no encontrado" });
+
     const postFiltered = filterOldComments(post);
     res.status(200).json(postFiltered.comments);
   } catch (error) {
@@ -63,10 +67,13 @@ const getCommentById = async (req, res) => {
       "comments.author",
       "nickName",
     );
+
     if (!post) return res.status(404).json({ message: "Post no encontrado" });
+
     const comment = post.comments.id(idComment);
     if (!comment)
       return res.status(404).json({ message: "Comentario no encontrado" });
+
     res.status(200).json(comment);
   } catch (error) {
     res
@@ -82,15 +89,18 @@ const deleteComment = async (req, res) => {
   try {
     const { idComment } = req.params;
     const { postId } = req.body;
+
     const post = await Post.findById(postId);
     if (!post) return res.status(404).json({ message: "Post no encontrado" });
+
     post.comments.pull({ _id: idComment });
     await post.save();
-    if (cache.isReady) {
-      await cache.del(`post:${postId}`);
-      await cache.del("posts:all");
-      await cache.del(`posts:user:${post.author}`);
-    }
+
+    await invalidateCache([
+      `post:${postId}`,
+      "posts:all",
+      `posts:user:${post.author}`,
+    ]);
     return res.status(200).json({ message: "Comentario eliminado con éxito" });
   } catch (error) {
     res
@@ -106,20 +116,23 @@ const editComment = async (req, res) => {
   try {
     const { idComment } = req.params;
     const { postId, text } = req.body;
+
     const updatedPost = await Post.findOneAndUpdate(
       { _id: postId, "comments._id": idComment },
       { $set: { "comments.$.text": text } },
-      { new: true },
+      { returnDocument: 'after' },
     );
+
     if (!updatedPost)
       return res
         .status(404)
         .json({ message: "Post o comentario no encontrado" });
-    if (cache.isReady) {
-      await cache.del(`post:${postId}`);
-      await cache.del("posts:all");
-      await cache.del(`posts:user:${updatedPost.author}`);
-    }
+
+    await invalidateCache([
+      `post:${postId}`,
+      "posts:all",
+      `posts:user:${updatedPost.author}`,
+    ]);
     res.status(200).json({ message: "Comentario editado con éxito" });
   } catch (error) {
     res

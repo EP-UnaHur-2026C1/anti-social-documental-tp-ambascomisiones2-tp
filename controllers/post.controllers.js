@@ -1,10 +1,10 @@
 const Post = require("../models/post");
 const Tag = require("../models/tag");
 const cache = require("../config/redisClient");
+const { invalidateCache } = require("../services/cache.service");
 
 const filterOldComments = (post) => {
   const postObject = post.toObject ? post.toObject({ virtuals: true }) : post;
-
   if (postObject.comments) {
     postObject.comments = postObject.comments.filter((c) => c.visible);
   }
@@ -14,9 +14,7 @@ const filterOldComments = (post) => {
 const createPost = async (req, res) => {
   try {
     const newPost = await Post.create(req.body);
-
-    if (cache.isReady) await cache.del("posts:all");
-
+    await invalidateCache(["posts:all"]);
     res.status(201).json(newPost);
   } catch (error) {
     res
@@ -100,10 +98,7 @@ const associateTagToPost = async (req, res) => {
       await post.save();
     }
 
-    if (cache.isReady) {
-      await cache.del(`post:${id}`);
-      await cache.del("posts:all");
-    }
+    await invalidateCache([`post:${id}`, "posts:all"]);
     return res
       .status(201)
       .json({ message: "Etiqueta vinculada al post con éxito" });
@@ -119,10 +114,7 @@ const deletePost = async (req, res) => {
     const { id } = req.params;
     await Post.findByIdAndDelete(id);
 
-    if (cache.isReady) {
-      await cache.del(`post:${id}`);
-      await cache.del("posts:all");
-    }
+    await invalidateCache([`post:${id}`, "posts:all"]);
     return res.status(200).json({ message: "Post eliminado con éxito" });
   } catch (error) {
     return res
@@ -142,11 +134,7 @@ const editPost = async (req, res) => {
       { new: true, runValidators: true },
     );
 
-    if (cache.isReady) {
-      await cache.del(`post:${postId}`);
-      await cache.del("posts:all");
-    }
-
+    await invalidateCache([`post:${postId}`, "posts:all"]);
     res
       .status(200)
       .json({ message: "Post editado con éxito", post: updatedPost });

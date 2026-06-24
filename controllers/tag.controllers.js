@@ -1,5 +1,5 @@
 const Tag = require("../models/tag");
-const cache = require("../config/redisClient");
+const { invalidateCache } = require("../services/cache.service");
 
 const createTag = async (req, res) => {
   try {
@@ -17,10 +17,12 @@ const getAllTags = async (req, res) => {
     const tags = await Tag.find();
     res.status(200).json(tags);
   } catch (error) {
-    res.status(500).json({
-      message: "Error al obetener las etiquetas",
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({
+        message: "Error al obetener las etiquetas",
+        error: error.message,
+      });
   }
 };
 
@@ -35,7 +37,7 @@ const editTag = async (req, res) => {
     if (!updateTag)
       return res.status(404).json({ message: "Etiqueta no encontrada" });
 
-    if (cache.isReady) await cache.del("tags:all");
+    await invalidateCache(["tags:all"]);
     res.status(200).json(updateTag);
   } catch (error) {
     res
@@ -53,7 +55,7 @@ const deleteTag = async (req, res) => {
       return res.status(404).json({ message: "Etiqueta no encontrada" });
     }
 
-    if (cache.isReady) await cache.del("tags:all");
+    await invalidateCache(["tags:all"]);
     res.status(200).json({ message: "Etiqueta eliminada con éxito" });
   } catch (error) {
     res
