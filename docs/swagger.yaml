@@ -207,6 +207,45 @@ paths:
         "400":
           $ref: "#/components/responses/BadRequest"
 
+  /posts/{postId}:
+    put:
+      tags:
+        - Posts
+      summary: Editar una publicación
+      description: Modifica la descripción de una publicación existente.
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          description: ID del post.
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - description
+              properties:
+                description:
+                  type: string
+                  minLength: 3
+                  maxLength: 100
+                  example: "Descripción actualizada"
+
+      responses:
+        "200":
+          description: Publicación actualizada correctamente.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+
   /posts/{id}:
     get:
       tags:
@@ -243,6 +282,7 @@ paths:
           description: Post eliminado con éxito.
         "404":
           $ref: "#/components/responses/NotFound"
+       
 
   /posts/{id}/tags:
     post:
@@ -294,7 +334,42 @@ paths:
         "400":
           $ref: "#/components/responses/BadRequest"
 
-  /comments/{id}:
+  /comments/{idComment}:
+    put:
+      tags:
+        - Comments
+      summary: Editar un comentario
+      description: Modifica el contenido de un comentario existente.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del comentario.
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{24}$"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - description
+              properties:
+                description:
+                  type: string
+                  minLength: 1
+                  maxLength: 300
+                  example: "Comentario editado correctamente."
+      responses:
+        "200":
+          description: Comentario actualizado con éxito.
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
     delete:
       tags:
         - Comments
@@ -343,22 +418,66 @@ paths:
         "400":
           description: No se adjuntó ningún archivo o el formato no es el admitido.
 
-  /post-images/{id}:
-    delete:
+  /post-images/{postId}:
+    get:
       tags:
         - Post Images
-      summary: Eliminar una imagen vinculada
+      summary: Obtener una imagen de un Post
+      description: Devuelve la imagen asociada a un post mediante su ID.
       parameters:
-        - name: id
+        - name: postId
           in: path
           required: true
+          description: ID de la imagen.
           schema:
             type: string
+            pattern: "^[0-9a-fA-F]{24}$"
       responses:
         "200":
-          description: Imagen desvinculada del sistema.
+          description: Imagen encontrada.
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
         "404":
           $ref: "#/components/responses/NotFound"
+
+/post-images/{postId}/{imageId}:
+  delete:
+    tags:
+      - Post Images
+    summary: Eliminar una imagen de un post
+    parameters:
+      - name: postId
+        in: path
+        required: true
+        description: ID del post.
+        schema:
+          type: string
+          pattern: "^[0-9a-fA-F]{24}$"
+
+      - name: imageId
+        in: path
+        required: true
+        description: ID de la imagen.
+        schema:
+          type: string
+          pattern: "^[0-9a-fA-F]{24}$"
+
+    responses:
+      "200":
+        description: Imagen eliminada correctamente.
+      "404":
+        $ref: "#/components/responses/NotFound"
 
   # --- ENDPOINTS: TAGS ---
   /tags:
